@@ -28,6 +28,31 @@ output_dir = 'training_output'  # directory where the classifier(s) are stored
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
+"""
+CUSTOM PYTHON SCRIPT - PARSE FILENAMES TO FIND WALKER AND ADD ID AS LABEL
+class_names = [] # the set of classes, i.e. speakers
+
+data = np.zeros((0,8002)) #8002 = 1 (timestamp) + 8000 (for 8kHz audio data) + 1 (label)
+
+for filename in os.listdir(data_dir):
+	if filename.endswith(".csv") and filename.startswith("speaker-data"):
+		filename_components = filename.split("-") # split by the '-' character
+		speaker = filename_components[2]
+		print("Loading data for {}.".format(speaker))
+		if speaker not in class_names:
+			class_names.append(speaker)
+		speaker_label = class_names.index(speaker)
+		sys.stdout.flush()
+		data_file = os.path.join(data_dir, filename)
+		data_for_current_speaker = np.genfromtxt(data_file, delimiter=',')
+		print("Loaded {} raw labelled audio data samples.".format(len(data_for_current_speaker)))
+		sys.stdout.flush()
+		data = np.append(data, data_for_current_speaker, axis=0)
+
+print("Found data for {} speakers : {}".format(len(class_names), ", ".join(class_names)))
+"""
+
+
 # LOAD DATA
 with open(data_file, 'r', encoding='Latin1') as f:
     reader = csv.reader(f, delimiter=',')
@@ -165,8 +190,8 @@ print("The average precision is {}".format(total_precision/10.0))
 print("The average recall is {}".format(total_recall/10.0))
 
 # SAVE BEST CLASSIFIER
-best_classifier = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
-best_classifier.fit(X,y) 
+best_classifier = RandomForestClassifier(n_estimators=100)
+best_classifier.fit(X,y)
 
 classifier_filename = 'classifier.pickle'
 print("Saving best classifier to {}...".format(os.path.join(output_dir, classifier_filename)))
