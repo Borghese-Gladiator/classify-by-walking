@@ -11,11 +11,11 @@ CS 328 Final Project (Spring 2021)
 7. [Conclusion](#conclusion)
 
 ## Gathering Data
-Gathered walking data from multiple subjects
-  - Daniel (male)
-  - Tim (male)
-  - Arnesh (male)
-  - Wen-Ling (female)
+Gathered 5 minutes of walking data per subject through accelerometer signal by using Physics Toolbox app.
+- Daniel (male)
+- Tim (male)
+- Arnesh (male)
+- Wen-Ling (female)
 
 ## Filtering Walking Data
 - Combined X, Y, Z accelerations into one magnitude signal
@@ -37,4 +37,4 @@ Split dataset into time windows and extracted features on given window
   - calculated total accuracy, precision, and recall
 
 ## Conclusions
-There is no distinctive difference between genders in gait (manner of walking).
+There is no distinctive difference between genders in gait (manner of walking)
