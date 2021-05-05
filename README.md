@@ -14,7 +14,6 @@ CS 328 Final Project (Spring 2021)
 Gathered 5 minutes of walking data per subject through accelerometer signal by using Physics Toolbox app.
 - Daniel (male)
 - Tim (male)
-- Arnesh (male)
 - Wen-Ling (female)
 
 ## Filtering Walking Data
