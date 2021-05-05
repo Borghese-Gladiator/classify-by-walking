@@ -1,4 +1,3 @@
-from features import FeatureExtractor
 import os
 import sys
 import pickle
@@ -10,81 +9,64 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix
-
-# Disable CSV field limit to load long strings in spam_or_not_spam.csv - https://stackoverflow.com/questions/15063936/csv-error-field-larger-than-field-limit-131072
-maxInt = sys.maxsize
-while True:
-    # decrease the maxInt value by factor 10
-    # as long as the OverflowError occurs.
-    try:
-        csv.field_size_limit(maxInt)
-        break
-    except OverflowError:
-        maxInt = int(maxInt/10)
+## Custom Utils
+from features import FeatureExtractor
+from utils import slidingWindow
 
 # CONSTANTS
-data_file = '.\\spam_or_not_spam.csv'
+data_dir = '.\\data'
 output_dir = 'training_output'  # directory where the classifier(s) are stored
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
-"""
-CUSTOM PYTHON SCRIPT - PARSE FILENAMES TO FIND WALKER AND ADD ID AS LABEL
-class_names = [] # the set of classes, i.e. speakers
+# LOAD DATA
+## CUSTOM PYTHON SCRIPT - PARSE FILENAMES TO FIND WALKER AND ADD ID AS LABEL
 
-data = np.zeros((0,8002)) #8002 = 1 (timestamp) + 8000 (for 8kHz audio data) + 1 (label)
+class_names = [] # the set of classes, i.e. speakers
+data = np.zeros((1, 5)) # set shape to match data
 
 for filename in os.listdir(data_dir):
-	if filename.endswith(".csv") and filename.startswith("speaker-data"):
-		filename_components = filename.split("-") # split by the '-' character
-		speaker = filename_components[2]
-		print("Loading data for {}.".format(speaker))
-		if speaker not in class_names:
-			class_names.append(speaker)
-		speaker_label = class_names.index(speaker)
-		sys.stdout.flush()
-		data_file = os.path.join(data_dir, filename)
-		data_for_current_speaker = np.genfromtxt(data_file, delimiter=',')
-		print("Loaded {} raw labelled audio data samples.".format(len(data_for_current_speaker)))
-		sys.stdout.flush()
-		data = np.append(data, data_for_current_speaker, axis=0)
+    if filename.endswith(".csv") and filename.startswith("walking-data"):
+        filename_components = filename.split("-") # split by the '-' character
+        speaker = filename_components[2]
+        print("Loading data for {}.".format(speaker))
+        if speaker not in class_names:
+            class_names.append(speaker)
+        speaker_label = class_names.index(speaker)
+        sys.stdout.flush()
+        data_file = os.path.join(data_dir, filename)
+        data_for_current_speaker = np.genfromtxt(data_file, delimiter=',', skip_header=1)
+        print("Loaded {} raw labelled audio data samples.".format(len(data_for_current_speaker)))
+        sys.stdout.flush()
+        data = np.append(data, data_for_current_speaker, axis=0)
 
 print("Found data for {} speakers : {}".format(len(class_names), ", ".join(class_names)))
-"""
-
-
-# LOAD DATA
-with open(data_file, 'r', encoding='Latin1') as f:
-    reader = csv.reader(f, delimiter=',')
-    headers = next(reader)
-    data = np.array(list(reader)).astype(str)
-
-print(headers)
-print(data.shape)
-print(data[:3])
 
 # FEATURE EXTRACTION
 
-n_features = 3
+window_size = 20
+step_size = 20
+
+n_features = 20
 X = np.zeros((0, n_features))
 y = np.zeros(0,)
 feature_extractor = FeatureExtractor(debug=False)
 
-for i, datapoint in enumerate(data):
-    print("Index: {0}".format(i))
-    text_data = datapoint[0]
-    label = int(datapoint[-1])  # 0 or 1 for spam - confusion matrix needs integers
-    x = feature_extractor.extract_features(text_data)
+for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_size):
+    # window contains gFx, gFy, gFz, magnitude
+    window = window_with_timestamp_and_label[:,1]
+    label = window_with_timestamp_and_label[-1]
+    x = feature_extractor.extract_features(window)
     if (len(x) != X.shape[1]):
-        print("Received feature vector of length {}. Expected feature vector of length {}.".format(
-            len(x), X.shape[1]))
-    X = np.append(X, np.reshape(x, (1, -1)), axis=0)
-    y = np.append(y, label)
+        print("Received feature vector of length {}. Expected feature vector of length {}.".format(len(x), X.shape[1]))
+    X = np.append(X, np.reshape(x, (1,-1)), axis=0)
+    y.append(label)
 
-print("FINISHED feature extraction")
+print("Finished feature extraction over {} windows".format(len(X)))
+print("Unique labels found: {}".format(set(y)))
 
 # TRAIN & EVALUATE CLASSIFIERS
-confusion_matrix_labels = [0, 1]
+confusion_matrix_labels = [1, 2]
 print("---------------------- Decision Tree -------------------------")
 
 total_accuracy = 0.0
