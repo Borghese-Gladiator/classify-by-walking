@@ -15,5 +15,5 @@ for filename in os.listdir(data_dir):
         identifier = filename_components[3].split(".")[0]
         
         csv_input = pd.read_csv(os.path.join(data_dir, filename))
-        csv_input['Speaker'] = speaker
+        csv_input['walker'] = speaker
         csv_input.to_csv('walking-data-{0}-{1}.csv'.format(speaker, identifier), index=False)
