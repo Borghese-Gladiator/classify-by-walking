@@ -1,38 +1,26 @@
-spam_words_list = ["#1", "100\%", "100\% free", "100\% satisfied", "50\% off", "Ad", "All New", "Bargain", "Best Price", "Bonus", "Brand New Pager", "Claims not to be selling        anything", "Cost", "Costs ", "Credit", "Discount", "Don’t delete", "Email harvest", "Email marketing", "F r e e", "Fast cash", "For free", "For instant access", "For just $xxx", "For just $yyy", "For only", "For you", "Free", "Free and free", "Free consultation", "Free dvd", "Free gift", "Free sample", "Free trial", "Free website", "Gift certificate", "Give it away", "Giving away", "Giving it away", "Great", "Great offer", "Incredible deal", "Insurance", "Internet market", "Internet marketing", "It’s effective", "Lower interest rate", "Lowest interest rate", "Lowest insurance        rates", "Lowest price", "Luxury", "Luxury car", "Mortgage ", "Mortgage rates", "Name Brand", "New domain extensions", "One hundred percent        free", "Outstanding values", "Please read", "Prize", "Prizes", "Profits", "Promise", "Promise you", "Sale", "Sales", "Sample", "Satisfaction", "Satisfaction        guaranteed", "Stainless Steel", "Stuff on sale", "The best rates", "We hate spam", "Web traffic", "Will not believe your        eyes"]
-
-import nltk
-import re
-
-## Tokenize
-nltk.download('punkt')
-from nltk.tokenize import word_tokenize 
-def tokenize_into_words(text):
-	tokens = re.split('\W+', text)
-	return tokens
-
-## Normalize - Lemmatization (turn nouns/verbs into base dictionary forms)
-nltk.download('wordnet')
-from nltk.stem import WordNetLemmatizer
-lemmatizer = WordNetLemmatizer()
-def lemmatization(tokenized_words):
-	lemmatized_text = [lemmatizer.lemmatize(word)for word in tokenized_words]
-	return ' '.join(lemmatized_text)
-
-## Filtering Noise (Cleaning) - removing stop words
-nltk.download('stopwords')
-from nltk.corpus import stopwords
-stop_words = stopwords.words('english')
-def remove_stop_words(normalized_words):
-    filtered_sentence = []
-    for w in normalized_words: 
-        if w not in stop_words: 
-            filtered_sentence.append(w) 
-    return filtered_sentence
-
-## Apply Tokenization, Normalization, Cleaning
-def apply_preprocess_all(text):
-    # returns string (NOT list)
-    tokenized = tokenize_into_words(text)
-    normalized = lemmatization(tokenized)
-    cleaned_words = remove_stop_words(normalized)
-    return " ".join(cleaned_words) # " ".join() joins array elements with ' ' between each one
+import numpy as np
+ 
+def slidingWindow(sequence, winSize, step=1):
+    """Returns a generator that will iterate through
+    the defined chunks of input sequence.  Input sequence
+    must be iterable.
+    Thanks to https://scipher.wordpress.com/2010/12/02/simple-sliding-window-iterator-in-python/"""
+ 
+    # Verify the inputs
+    try: 
+        it = iter(sequence)
+    except TypeError:
+        raise Exception("**ERROR** sequence must be iterable.")
+    if not ((type(winSize) == type(0)) and (type(step) == type(0))):
+        raise Exception("**ERROR** type(winSize) and type(step) must be int.")
+    if step > winSize:
+        raise Exception("**ERROR** step must not be larger than winSize.")
+    if winSize > len(sequence):
+        raise Exception("**ERROR** winSize must not be larger than sequence length.")
+ 
+    # Pre-compute number of chunks to emit
+    numOfChunks = int((len(sequence)-winSize)/step)+1
+ 
+    # Do the work
+    for i in range(0,numOfChunks*step,step):
+        yield i, sequence[i:i+winSize]
