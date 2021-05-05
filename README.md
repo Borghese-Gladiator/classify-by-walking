@@ -3,7 +3,7 @@ CS 328 Final Project (Spring 2021)
 
 ## Methodology
 1. [Gathering Data](#gathering-data)
-2. Load CSV into numpy array 
+2. Load CSV files into numpy array & add labels based on filename (1 = male, 2 = female)
 3. [Filtering Walking Data](#filtering-walking-data)
 4. [Feature Extraction from Inertial Data](#feature-extraction-from-inertial-data)
 5. [Trained & Evaluated Classifiers](#trained--evaluated-classifiers)
@@ -37,3 +37,7 @@ Split dataset into time windows and extracted features on given window
 
 ## Conclusions
 There is no distinctive difference between genders in gait (manner of walking)
+
+## Dependencies
+- Pandas used for add_column_csv.py
+- numpy and sklearn used in gender_train.py
