@@ -91,8 +91,7 @@ class FeatureExtractor():
         feature_names.append("magnitude_peak_count")
         '''
         """
-        print(window)
-        x = []
+        x = np.array([])
 
         xSignal = []
         ySignal = []
@@ -105,15 +104,13 @@ class FeatureExtractor():
             magnitudeSignal.append(window[i][3])
             # magnitudeSignal.append(sqrt(window[i][0] ** 2 + window[i][1] ** 2 + window[i][2] ** 2))
 
-        x.append(self._compute_mean_features(window))  # appends 3 values (x, y, z)
-        x.append(self._compute_variance_features(window))
-        x.append(self._compute_dominant_freq(xSignal, ySignal,
-                zSignal, magnitudeSignal))  # 2D Array
-        x.append(self._compute_entropy(xSignal, ySignal, zSignal, magnitudeSignal))
-        x.append(self._compute_peak_count(xSignal, ySignal, zSignal, magnitudeSignal))
-
+        x = np.append(x, self._compute_mean_features(window))
+        x = np.append(x, self._compute_variance_features(window))
+        x = np.append(x, self._compute_dominant_freq(xSignal, ySignal, zSignal, magnitudeSignal))
+        x = np.append(x, self._compute_entropy(xSignal, ySignal, zSignal, magnitudeSignal))
+        x = np.append(x, self._compute_peak_count(xSignal, ySignal, zSignal, magnitudeSignal))
         # convert the list of features to a single 1-dimensional vector
-        feature_vector = np.array(x, dtype="object").flatten()
+        feature_vector = x.flatten()
         
         # feature_vector = np.concatenate(x, axis=0) # convert the list of features to a single 1-dimensional vector
         return feature_vector

@@ -23,7 +23,7 @@ if not os.path.exists(output_dir):
 ## CUSTOM PYTHON SCRIPT - PARSE FILENAMES TO FIND WALKER AND ADD ID AS LABEL
 
 class_names = [] # the set of classes, i.e. speakers
-data = np.zeros((1, 5)) # set shape to match data
+data = np.zeros((1, 6)) # set shape to match data
 
 for filename in os.listdir(data_dir):
     if filename.endswith(".csv") and filename.startswith("walking-data"):
@@ -36,7 +36,7 @@ for filename in os.listdir(data_dir):
         sys.stdout.flush()
         data_file = os.path.join(data_dir, filename)
         data_for_current_speaker = np.genfromtxt(data_file, delimiter=',', skip_header=1)
-        print("Loaded {} raw labelled audio data samples.".format(len(data_for_current_speaker)))
+        print("Loaded {} raw labelled data samples.".format(len(data_for_current_speaker)))
         sys.stdout.flush()
         data = np.append(data, data_for_current_speaker, axis=0)
 
@@ -47,15 +47,16 @@ print("Found data for {} speakers : {}".format(len(class_names), ", ".join(class
 window_size = 20
 step_size = 20
 
-n_features = 5
+n_features = 20
 X = np.zeros((0, n_features))
 y = np.zeros(0,)
 feature_extractor = FeatureExtractor(debug=False)
 
 for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_size):
-    # window contains gFx, gFy, gFz, magnitude
-    window = window_with_timestamp_and_label[1:-1]
-    label = window_with_timestamp_and_label[-1]
+    # window contains [timestamp, gFx, gFy, gFz, magnitude, label]
+    window = window_with_timestamp_and_label[:,1:-1]
+    label = window_with_timestamp_and_label[10, -1] # all speakers are same in given CSV
+    print(window_with_timestamp_and_label)
     x = feature_extractor.extract_features(window)
     if (len(x) != X.shape[1]):
         print("Received feature vector of length {}. Expected feature vector of length {}.".format(len(x), X.shape[1]))
@@ -63,7 +64,7 @@ for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_
     y = np.append(y, label)
 
 print("Finished feature extraction over {} windows".format(len(X)))
-print("Unique labels found: {}".format(set(y)))
+print("Unique labels found: {}".format(len(set(y))))
 
 # TRAIN & EVALUATE CLASSIFIERS
 confusion_matrix_labels = [1, 2]
@@ -86,8 +87,6 @@ for i, (train_index, test_index) in enumerate(cv.split(X)):
 
     # predict the labels on the test data
     y_pred = tree.predict(X_test)
-    print(y_pred)
-    print(y_test)
 
     # show the comparison between the predicted and ground-truth labels
     conf = confusion_matrix(y_test, y_pred, labels=confusion_matrix_labels)
