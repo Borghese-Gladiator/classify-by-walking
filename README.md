@@ -3,8 +3,8 @@ CS 328 Final Project (Spring 2021)
 
 ## Methodology
 1. [Gathering Data](#gathering-data)
-2. [Filtering Walking Data](#filtering-walking-data)
-3. Load CSV into numpy array 
+2. Load CSV into numpy array 
+3. [Filtering Walking Data](#filtering-walking-data)
 4. [Feature Extraction from Inertial Data](#feature-extraction-from-inertial-data)
 5. [Trained & Evaluated Classifiers](#trained--evaluated-classifiers)
 6. Wrote best_classifier to /training_output/
