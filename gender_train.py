@@ -47,20 +47,20 @@ print("Found data for {} speakers : {}".format(len(class_names), ", ".join(class
 window_size = 20
 step_size = 20
 
-n_features = 20
+n_features = 5
 X = np.zeros((0, n_features))
 y = np.zeros(0,)
 feature_extractor = FeatureExtractor(debug=False)
 
 for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_size):
     # window contains gFx, gFy, gFz, magnitude
-    window = window_with_timestamp_and_label[:,1]
+    window = window_with_timestamp_and_label[1:-1]
     label = window_with_timestamp_and_label[-1]
     x = feature_extractor.extract_features(window)
     if (len(x) != X.shape[1]):
         print("Received feature vector of length {}. Expected feature vector of length {}.".format(len(x), X.shape[1]))
     X = np.append(X, np.reshape(x, (1,-1)), axis=0)
-    y.append(label)
+    y = np.append(y, label)
 
 print("Finished feature extraction over {} windows".format(len(X)))
 print("Unique labels found: {}".format(set(y)))

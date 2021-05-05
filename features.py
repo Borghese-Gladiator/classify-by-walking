@@ -7,21 +7,21 @@ class FeatureExtractor():
     def __init__(self, debug=True):
         self.debug = debug
 
-    def _compute_mean_features(window):
+    def _compute_mean_features(self, window):
         """
         Category 1 - Statistical Feature
         Computes the mean x, y and z acceleration over the given window. 
         """
         return np.mean(window, axis=0)
 
-    def _compute_variance_features(window):
+    def _compute_variance_features(self, window):
         """
         Category 1 - Statistical Feature
         Computes the variance of x, y, and z over the given window
         """
         return np.var(window, axis=0)
 
-    def _compute_dominant_freq(xSignal, ySignal, zSignal, magnitudeSignal):
+    def _compute_dominant_freq(self, xSignal, ySignal, zSignal, magnitudeSignal):
         """
         Category 2 - FFT Feature
         Fast Fourier Transform - computes real-value Discrete Fourier Transform and decomposes signal into finite number of sinusoidal components
@@ -35,7 +35,7 @@ class FeatureExtractor():
             np.fft.rfft(magnitudeSignal, axis=0).astype(float))
         return np.array([dominantFrequencyX, dominantFrequencyY, dominantFrequencyZ, dominantFrequencyMagnitude])
 
-    def _compute_entropy(xSignal, ySignal, zSignal, magnitudeSignal, base=None):
+    def _compute_entropy(self, xSignal, ySignal, zSignal, magnitudeSignal, base=None):
         """
         Category 3 - Other Features
         Entropy - measure of how pure/homogenous a group is
@@ -49,7 +49,7 @@ class FeatureExtractor():
             magnitudeSignal, return_counts=True)
         return np.array([entropy(countsX, base=base), entropy(countsY, base=base), entropy(countsZ, base=base), entropy(countsMagnitude, base=base)])
 
-    def _compute_peak_count(xSignal, ySignal, zSignal, magnitudeSignal):
+    def _compute_peak_count(self, xSignal, ySignal, zSignal, magnitudeSignal):
         """
         Category 4 - Peak Features
         find number of peaks in window
@@ -62,29 +62,8 @@ class FeatureExtractor():
         the given window.
 
         Make sure that x is a vector of length d matrix, where d is the number of features.
-
-        """
-        x = []
+        '''
         feature_names = []
-
-        xSignal = []
-        ySignal = []
-        zSignal = []
-        magnitudeSignal = []
-        for i in range(len(window)):
-            xSignal.append(window[i][0])
-            ySignal.append(window[i][1])
-            zSignal.append(window[i][2])
-            magnitudeSignal.append(window[i][3])
-            # magnitudeSignal.append(sqrt(window[i][0] ** 2 + window[i][1] ** 2 + window[i][2] ** 2))
-
-        x.append(self._compute_mean_features(window))  # appends 3 values (x, y, z)
-        x.append(self._compute_variance_features(window))
-        x.append(self._compute_dominant_freq(xSignal, ySignal,
-                zSignal, magnitudeSignal))  # 2D Array
-        x.append(self._compute_entropy(xSignal, ySignal, zSignal, magnitudeSignal))
-        x.append(self._compute_peak_count(xSignal, ySignal, zSignal, magnitudeSignal))
-
         # Mean
         feature_names.append("x_mean")
         feature_names.append("y_mean")
@@ -110,9 +89,31 @@ class FeatureExtractor():
         feature_names.append("y_peak_count")
         feature_names.append("z_peak_count")
         feature_names.append("magnitude_peak_count")
+        '''
+        """
+        print(window)
+        x = []
+
+        xSignal = []
+        ySignal = []
+        zSignal = []
+        magnitudeSignal = []
+        for i in range(len(window)):
+            xSignal.append(window[i][0])
+            ySignal.append(window[i][1])
+            zSignal.append(window[i][2])
+            magnitudeSignal.append(window[i][3])
+            # magnitudeSignal.append(sqrt(window[i][0] ** 2 + window[i][1] ** 2 + window[i][2] ** 2))
+
+        x.append(self._compute_mean_features(window))  # appends 3 values (x, y, z)
+        x.append(self._compute_variance_features(window))
+        x.append(self._compute_dominant_freq(xSignal, ySignal,
+                zSignal, magnitudeSignal))  # 2D Array
+        x.append(self._compute_entropy(xSignal, ySignal, zSignal, magnitudeSignal))
+        x.append(self._compute_peak_count(xSignal, ySignal, zSignal, magnitudeSignal))
 
         # convert the list of features to a single 1-dimensional vector
         feature_vector = np.array(x, dtype="object").flatten()
         
         # feature_vector = np.concatenate(x, axis=0) # convert the list of features to a single 1-dimensional vector
-        return feature_names, feature_vector
+        return feature_vector
