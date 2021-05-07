@@ -1,9 +1,6 @@
 import os
 import sys
 import pickle
-import json
-import csv
-import random
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
