@@ -15,5 +15,8 @@ for filename in os.listdir(data_dir):
         identifier = filename_components[3].split(".")[0]
         
         csv_input = pd.read_csv(os.path.join(data_dir, filename))
-        csv_input['walker'] = speaker
+        if speaker == "daniel" or speaker == "timothy":
+            csv_input['gender'] = "male"
+        else:
+            csv_input['gender'] = "female"
         csv_input.to_csv('walking-data-{0}-{1}.csv'.format(speaker, identifier), index=False)
