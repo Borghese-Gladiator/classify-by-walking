@@ -120,5 +120,11 @@ The average recall is [0.97064896 0.9487034 ]
 ```
 
 ## Dependencies
-- Pandas used for add_column_csv.py
-- numpy and sklearn used in gender_train.py
+gender_train.py
+- numpy - arrays to hold data for training
+- sklearn - classification models & confusion matrix
+- pandas - load multiple CSV files into one
+
+features.py
+- numpy - fast fourier transform split signal into parts && calculate mean and variance of numpy array
+- scipy - calculate entropy and peaks
