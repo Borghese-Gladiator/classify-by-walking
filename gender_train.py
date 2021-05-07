@@ -31,6 +31,9 @@ for filename in os.listdir(data_dir):
         li.append(df)
 
 frame = pd.concat(li, axis=0, ignore_index=True)
+# Replace male/female with integer labels for Confusion Matrix - # frame['gender'] = frame['gender'].str.replace('female', '2').replace('male', '1')
+frame = frame.replace(to_replace="female",value=2)
+frame = frame.replace(to_replace="male",value=1)
 print(frame)
 data = frame.values # get numpy array
 
@@ -70,9 +73,9 @@ y = np.zeros(0,)
 feature_extractor = FeatureExtractor(debug=False)
 
 for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_size):
-    # window contains [timestamp, gFx, gFy, gFz, magnitude, label]
-    window = window_with_timestamp_and_label[:,1:-1]
-    label = window_with_timestamp_and_label[10, -1] # all speakers are same in given CSV
+    # window contains [timestamp, gFx, gFy, gFz, magnitude, walkerLabel, genderLabel] => ignore timestamp, walkerLabe, genderLabel
+    window = window_with_timestamp_and_label[:,1:-2]
+    label = window_with_timestamp_and_label[0, -1] # gets genderLabel for first element - all windows have same speaker
     # print(window_with_timestamp_and_label)
     x = feature_extractor.extract_features(window)
     if (len(x) != X.shape[1]):
@@ -81,6 +84,7 @@ for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_
     y = np.append(y, label)
 
 print("Finished feature extraction over {} windows".format(len(X)))
+print(set(y))
 print("Unique labels found: {}".format(len(set(y))))
 
 # TRAIN & EVALUATE CLASSIFIERS
