@@ -9,6 +9,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix
+## Load CSV
+import pandas as pd
+import glob
 ## Custom Utils
 from features import FeatureExtractor
 from utils import slidingWindow
@@ -19,11 +22,25 @@ output_dir = 'training_output'  # directory where the classifier(s) are stored
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
-# LOAD DATA
-## CUSTOM PYTHON SCRIPT - PARSE FILENAMES TO FIND WALKER AND ADD ID AS LABEL
+li = []
 
+for filename in os.listdir(data_dir):
+    if filename.endswith(".csv") and filename.startswith("walking-data"):
+        data_file = os.path.join(data_dir, filename)
+        df = pd.read_csv(data_file, index_col=None, header=0)
+        li.append(df)
+
+frame = pd.concat(li, axis=0, ignore_index=True)
+print(frame)
+data = frame.values # get numpy array
+
+'''
+# UNABLE TO USE THIS - Numpy handles unhomogenous data as one big structured array, so I can't figure out the default shape for them to work
+# when I did as one big list, each file got loaded as one array (result: (array_for_file_1, array_for_file_2, array_for_file_3 ))
+
+# LOAD DATA
 class_names = [] # the set of classes, i.e. speakers
-data = np.zeros((1, 6)) # set shape to match data
+data = np.zeros((0, 6)) # set shape to match data
 
 for filename in os.listdir(data_dir):
     if filename.endswith(".csv") and filename.startswith("walking-data"):
@@ -35,13 +52,13 @@ for filename in os.listdir(data_dir):
         speaker_label = class_names.index(speaker)
         sys.stdout.flush()
         data_file = os.path.join(data_dir, filename)
-        data_for_current_speaker = np.genfromtxt(data_file, delimiter=',', skip_header=1)
+        data_for_current_speaker = np.genfromtxt(data_file, delimiter=',', skip_header=1, names=True)
+        print(data_for_current_speaker.shape)
         print("Loaded {} raw labelled data samples.".format(len(data_for_current_speaker)))
-        sys.stdout.flush()
+        
         data = np.append(data, data_for_current_speaker, axis=0)
-
 print("Found data for {} speakers : {}".format(len(class_names), ", ".join(class_names)))
-
+'''
 # FEATURE EXTRACTION
 
 window_size = 20
@@ -56,7 +73,7 @@ for i, window_with_timestamp_and_label in slidingWindow(data, window_size, step_
     # window contains [timestamp, gFx, gFy, gFz, magnitude, label]
     window = window_with_timestamp_and_label[:,1:-1]
     label = window_with_timestamp_and_label[10, -1] # all speakers are same in given CSV
-    print(window_with_timestamp_and_label)
+    # print(window_with_timestamp_and_label)
     x = feature_extractor.extract_features(window)
     if (len(x) != X.shape[1]):
         print("Received feature vector of length {}. Expected feature vector of length {}.".format(len(x), X.shape[1]))
